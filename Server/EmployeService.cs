@@ -7,24 +7,26 @@ namespace Server
     /// <summary>
     /// Implementation du service RPC pour la gestion des employes.
     /// Herite de MarshalByRefObject pour permettre l'acces a distance via .NET Remoting.
-    /// Utilise un fichier JSON pour le stockage des donnees (pas de SQL Server requis).
+    /// Utilise une base de donnees SQL Server (EmployeeManagementDB) pour le stockage.
     /// </summary>
     public class EmployeService : MarshalByRefObject, IRPC
     {
-        // Gestionnaire de stockage JSON
-        private readonly JsonDataStore _dataStore;
+        // Gestionnaire de stockage SQL
+        private readonly DbDataStore _dataStore;
 
         /// <summary>
-        /// Constructeur - Initialise le stockage JSON
+        /// Constructeur - Initialise le stockage SQL
         /// </summary>
         public EmployeService()
         {
-            _dataStore = new JsonDataStore("employes.json");
-            Console.WriteLine("[SERVER] Service initialise avec stockage JSON");
+            // Simpler LocalDB connection string (no encryption flags)
+            string conn = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=EmployeeManagementDB;Integrated Security=True;Connect Timeout=30;";
+            _dataStore = new DbDataStore(conn);
+            Console.WriteLine("[SERVER] Service initialise avec stockage SQL (EmployeeManagementDB)");
         }
 
         /// <summary>
-        /// Ajoute un nouvel employe dans le fichier JSON.
+        /// Ajoute un nouvel employe dans la base de donnees.
         /// </summary>
         /// <param name="employe">L'employe a ajouter</param>
         /// <returns>True si l'ajout a reussi, False sinon</returns>
@@ -33,7 +35,7 @@ namespace Server
             try
             {
                 bool resultat = _dataStore.Ajouter(employe);
-                
+
                 if (resultat)
                 {
                     Console.WriteLine($"[SERVER] Employe ajoute : {employe.Nom} (CIN: {employe.Cin})");
@@ -42,7 +44,7 @@ namespace Server
                 {
                     Console.WriteLine($"[SERVER] CIN deja existant : {employe.Cin}");
                 }
-                
+
                 return resultat;
             }
             catch (Exception ex)
@@ -62,7 +64,7 @@ namespace Server
             try
             {
                 Employe employe = _dataStore.Rechercher(cin);
-                
+
                 if (employe != null)
                 {
                     Console.WriteLine($"[SERVER] Employe trouve : {employe.Nom}");
@@ -71,7 +73,7 @@ namespace Server
                 {
                     Console.WriteLine($"[SERVER] Aucun employe trouve avec CIN: {cin}");
                 }
-                
+
                 return employe;
             }
             catch (Exception ex)
@@ -92,7 +94,7 @@ namespace Server
             try
             {
                 Employe employe = RechercherEmploye(cin);
-                
+
                 if (employe == null)
                 {
                     Console.WriteLine("[SERVER] Impossible de calculer le salaire : employe non trouve");
