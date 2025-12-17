@@ -48,31 +48,60 @@ END";
 
         private void EnsureTableExists()
         {
-            const string sql = @"
-IF OBJECT_ID('dbo.Employees','U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Employees (
-        Id INT IDENTITY(1,1) PRIMARY KEY,
-        Cin NVARCHAR(50) NOT NULL CONSTRAINT UQ_Employees_Cin UNIQUE,
-        Nom NVARCHAR(200) NOT NULL,
-        Taux FLOAT NOT NULL,
-        NbrHeure INT NOT NULL
-    );
-END";
+            var schemas = new List<string>
+            {
+                @"IF OBJECT_ID('dbo.Employees','U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.Employees (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        Cin NVARCHAR(50) NOT NULL CONSTRAINT UQ_Employees_Cin UNIQUE,
+                        Nom NVARCHAR(200) NOT NULL,
+                        Taux FLOAT NOT NULL,
+                        NbrHeure INT NOT NULL
+                    );
+                END",
+                @"IF OBJECT_ID('dbo.Departements','U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.Departements (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        Nom NVARCHAR(200) NOT NULL,
+                        ChefCin NVARCHAR(50) NULL
+                    );
+                END",
+                @"IF OBJECT_ID('dbo.Projets','U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.Projets (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        Nom NVARCHAR(200) NOT NULL,
+                        Budget FLOAT NOT NULL
+                    );
+                END",
+                @"IF OBJECT_ID('dbo.Affectations','U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.Affectations (
+                        Id INT IDENTITY(1,1) PRIMARY KEY,
+                        EmployeCin NVARCHAR(50) NOT NULL,
+                        ProjetId INT NOT NULL,
+                        Heures INT NOT NULL
+                    );
+                END"
+            };
 
-            try
+            foreach (var sql in schemas)
             {
-                using (var conn = new SqlConnection(_connectionString))
-                using (var cmd = new SqlCommand(sql, conn))
+                try
                 {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
+                    using (var conn = new SqlConnection(_connectionString))
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        conn.Open();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Do not throw to avoid preventing application start; log for diagnosis
-                Console.WriteLine($"[SERVER] Failed to ensure Employees table exists: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SERVER] Failed to ensure table exists: {ex.Message}");
+                }
             }
         }
 
@@ -192,6 +221,118 @@ END";
                 }
             }
 
+            return list;
+        }
+        public bool AjouterDepartement(Departement dept)
+        {
+            const string sql = @"INSERT INTO Departements (Nom, ChefCin) VALUES (@Nom, @ChefCin)";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Nom", dept.Nom ?? "");
+                cmd.Parameters.AddWithValue("@ChefCin", (object)dept.ChefCin ?? DBNull.Value);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public List<Departement> ListerDepartements()
+        {
+            const string sql = @"SELECT Id, Nom, ChefCin FROM Departements";
+            var list = new List<Departement>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        list.Add(new Departement
+                        {
+                            Id = r.GetInt32(0),
+                            Nom = r.GetString(1),
+                            ChefCin = r.IsDBNull(2) ? null : r.GetString(2)
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool AjouterProjet(Projet proj)
+        {
+            const string sql = @"INSERT INTO Projets (Nom, Budget) VALUES (@Nom, @Budget)";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Nom", proj.Nom ?? "");
+                cmd.Parameters.AddWithValue("@Budget", proj.Budget);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public List<Projet> ListerProjets()
+        {
+            const string sql = @"SELECT Id, Nom, Budget FROM Projets";
+            var list = new List<Projet>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        list.Add(new Projet
+                        {
+                            Id = r.GetInt32(0),
+                            Nom = r.GetString(1),
+                            Budget = r.GetDouble(2)
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public bool AjouterAffectation(Affectation aff)
+        {
+            const string sql = @"INSERT INTO Affectations (EmployeCin, ProjetId, Heures) VALUES (@EmployeCin, @ProjetId, @Heures)";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@EmployeCin", aff.EmployeCin ?? "");
+                cmd.Parameters.AddWithValue("@ProjetId", aff.ProjetId);
+                cmd.Parameters.AddWithValue("@Heures", aff.Heures);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public List<Affectation> ListerAffectations()
+        {
+            const string sql = @"SELECT Id, EmployeCin, ProjetId, Heures FROM Affectations";
+            var list = new List<Affectation>();
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        list.Add(new Affectation
+                        {
+                            Id = r.GetInt32(0),
+                            EmployeCin = r.GetString(1),
+                            ProjetId = r.GetInt32(2),
+                            Heures = r.GetInt32(3)
+                        });
+                    }
+                }
+            }
             return list;
         }
     }

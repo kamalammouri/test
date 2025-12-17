@@ -1,27 +1,7 @@
--- Run this script in SSMS or Visual Studio SQL Server Object Explorer to create the database and table
--- It is safe to run multiple times.
-
-IF DB_ID('EmployeeManagementDB') IS NULL
-BEGIN
-    CREATE DATABASE EmployeeManagementDB;
-END
-GO
-
 USE EmployeeManagementDB;
 GO
 
-IF OBJECT_ID('dbo.Employees', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Employees (
-        Id INT IDENTITY(1,1) PRIMARY KEY,
-        Cin NVARCHAR(50) NOT NULL CONSTRAINT UQ_Employees_Cin UNIQUE,
-        Nom NVARCHAR(200) NOT NULL,
-        Taux FLOAT NOT NULL,
-        NbrHeure INT NOT NULL
-    );
-END
-GO
-
+-- Table Departements
 IF OBJECT_ID('dbo.Departements', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Departements (
@@ -29,9 +9,15 @@ BEGIN
         Nom NVARCHAR(200) NOT NULL,
         ChefCin NVARCHAR(50) NULL
     );
+    PRINT 'Table Departements created.';
+END
+ELSE
+BEGIN
+    PRINT 'Table Departements already exists.';
 END
 GO
 
+-- Table Projets
 IF OBJECT_ID('dbo.Projets', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Projets (
@@ -39,9 +25,15 @@ BEGIN
         Nom NVARCHAR(200) NOT NULL,
         Budget FLOAT NOT NULL
     );
+    PRINT 'Table Projets created.';
+END
+ELSE
+BEGIN
+    PRINT 'Table Projets already exists.';
 END
 GO
 
+-- Table Affectations
 IF OBJECT_ID('dbo.Affectations', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Affectations (
@@ -50,5 +42,10 @@ BEGIN
         ProjetId INT NOT NULL,
         Heures INT NOT NULL
     );
+    PRINT 'Table Affectations created.';
+END
+ELSE
+BEGIN
+    PRINT 'Table Affectations already exists.';
 END
 GO

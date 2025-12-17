@@ -208,6 +208,87 @@ namespace Server
             }
         }
 
+        // --- Departements ---
+        public bool AjouterDepartement(Departement departement)
+        {
+            try
+            {
+                return _dataStore.AjouterDepartement(departement);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de l'ajout departement : {ex.Message}");
+                return false;
+            }
+        }
+
+        public List<Departement> ListerDepartements()
+        {
+            try
+            {
+                return _dataStore.ListerDepartements();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors du listing departements : {ex.Message}");
+                return new List<Departement>();
+            }
+        }
+
+        // --- Projets ---
+        public bool AjouterProjet(Projet projet)
+        {
+            try
+            {
+                return _dataStore.AjouterProjet(projet);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de l'ajout projet : {ex.Message}");
+                return false;
+            }
+        }
+
+        public List<Projet> ListerProjets()
+        {
+            try
+            {
+                return _dataStore.ListerProjets();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors du listing projets : {ex.Message}");
+                return new List<Projet>();
+            }
+        }
+
+        // --- Affectations ---
+        public bool AjouterAffectation(Affectation affectation)
+        {
+            try
+            {
+                return _dataStore.AjouterAffectation(affectation);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de l'ajout affectation : {ex.Message}");
+                return false;
+            }
+        }
+
+        public List<Affectation> ListerAffectations()
+        {
+            try
+            {
+                return _dataStore.ListerAffectations();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors du listing affectations : {ex.Message}");
+                return new List<Affectation>();
+            }
+        }
+
         /// <summary>
         /// Override pour garder l'objet actif indefiniment sur le serveur.
         /// Retourne null pour une duree de vie infinie.

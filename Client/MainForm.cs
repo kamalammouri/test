@@ -30,6 +30,8 @@ namespace Client
 
                 lblStatus.Text = "Statut: Connecte au serveur";
                 lblStatus.ForeColor = System.Drawing.Color.Green;
+                
+                // Initial Load
                 ChargerListeEmployes();
             }
             catch (Exception ex)
@@ -39,6 +41,10 @@ namespace Client
             }
         }
 
+        // ==========================================
+        //  EMPLOYES
+        // ==========================================
+
         private void ChargerListeEmployes()
         {
             try
@@ -46,18 +52,10 @@ namespace Client
                 List<Employe> employes = serviceProxy.ListerTousEmployes();
                 dgvEmployes.DataSource = null;
                 dgvEmployes.DataSource = employes;
-
-                if (dgvEmployes.Columns.Count > 0)
-                {
-                    dgvEmployes.Columns["Cin"].HeaderText = "CIN";
-                    dgvEmployes.Columns["Nom"].HeaderText = "Nom";
-                    dgvEmployes.Columns["Taux"].HeaderText = "Taux Horaire";
-                    dgvEmployes.Columns["NbrHeure"].HeaderText = "Nb Heures";
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erreur listing employes : {ex.Message}");
             }
         }
 
@@ -77,14 +75,13 @@ namespace Client
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtCin.Text) || string.IsNullOrWhiteSpace(txtNom.Text) ||
-                    string.IsNullOrWhiteSpace(txtTaux.Text) || string.IsNullOrWhiteSpace(txtHeures.Text))
+                if (string.IsNullOrWhiteSpace(txtCin.Text) || string.IsNullOrWhiteSpace(txtNom.Text))
                 {
-                    MessageBox.Show("Veuillez remplir tous les champs.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Champs CIN et Nom requis.");
                     return;
                 }
 
-                Employe employe = new Employe
+                Employe emp = new Employe
                 {
                     Cin = txtCin.Text.Trim(),
                     Nom = txtNom.Text.Trim(),
@@ -92,24 +89,20 @@ namespace Client
                     NbrHeure = int.Parse(txtHeures.Text)
                 };
 
-                if (serviceProxy.AjouterEmploye(employe))
+                if (serviceProxy.AjouterEmploye(emp))
                 {
-                    MessageBox.Show("Employe ajoute!", "Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    ViderChamps();
+                    MessageBox.Show("Employe ajoute!");
+                    ViderChampsEmploye();
                     ChargerListeEmployes();
                 }
                 else
                 {
-                    MessageBox.Show("Echec (CIN existe deja?).", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Erreur (CIN duplique?)");
                 }
-            }
-            catch (FormatException)
-            {
-                MessageBox.Show("Valeurs numeriques invalides.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erreur : {ex.Message}");
             }
         }
 
@@ -117,13 +110,7 @@ namespace Client
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtCin.Text))
-                {
-                    MessageBox.Show("Selectionnez un employe.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                Employe employe = new Employe
+                Employe emp = new Employe
                 {
                     Cin = txtCin.Text.Trim(),
                     Nom = txtNom.Text.Trim(),
@@ -131,20 +118,20 @@ namespace Client
                     NbrHeure = int.Parse(txtHeures.Text)
                 };
 
-                if (serviceProxy.ModifierEmploye(employe))
+                if (serviceProxy.ModifierEmploye(emp))
                 {
-                    MessageBox.Show("Employe modifie!", "Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    ViderChamps();
+                    MessageBox.Show("Employe modifie!");
+                    ViderChampsEmploye();
                     ChargerListeEmployes();
                 }
                 else
                 {
-                    MessageBox.Show("Echec de la modification.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Erreur modification");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erreur : {ex.Message}");
             }
         }
 
@@ -152,39 +139,128 @@ namespace Client
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtCin.Text))
-                {
-                    MessageBox.Show("Selectionnez un employe.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (MessageBox.Show($"Supprimer l'employe CIN: {txtCin.Text}?", "Confirmation", 
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show("Confirmer suppression?", "Info", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     if (serviceProxy.SupprimerEmploye(txtCin.Text.Trim()))
                     {
-                        MessageBox.Show("Employe supprime!", "Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        ViderChamps();
+                        MessageBox.Show("Supprime!");
+                        ViderChampsEmploye();
                         ChargerListeEmployes();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Echec de la suppression.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erreur : {ex.Message}");
             }
         }
 
-        private void ViderChamps()
+        private void ViderChampsEmploye()
         {
-            txtCin.Text = "";
-            txtNom.Text = "";
-            txtTaux.Text = "";
-            txtHeures.Text = "";
+            txtCin.Text = ""; txtNom.Text = ""; txtTaux.Text = ""; txtHeures.Text = "";
+        }
+
+        // ==========================================
+        //  DEPARTEMENTS
+        // ==========================================
+
+        private void BtnListerDept_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                dgvDepartements.DataSource = null;
+                dgvDepartements.DataSource = serviceProxy.ListerDepartements();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void BtnAjouterDept_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Departement d = new Departement
+                {
+                    Nom = txtDeptNom.Text,
+                    ChefCin = string.IsNullOrWhiteSpace(txtDeptChefCin.Text) ? null : txtDeptChefCin.Text
+                };
+                if (serviceProxy.AjouterDepartement(d))
+                {
+                    MessageBox.Show("Departement ajoute!");
+                    txtDeptNom.Text = ""; txtDeptChefCin.Text = "";
+                    BtnListerDept_Click(sender, e);
+                }
+                else MessageBox.Show("Erreur ajout Departement");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        // ==========================================
+        //  PROJETS
+        // ==========================================
+
+        private void BtnListerProjet_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                dgvProjets.DataSource = null;
+                dgvProjets.DataSource = serviceProxy.ListerProjets();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void BtnAjouterProjet_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Projet p = new Projet
+                {
+                    Nom = txtProjetNom.Text,
+                    Budget = double.Parse(txtProjetBudget.Text)
+                };
+                if (serviceProxy.AjouterProjet(p))
+                {
+                    MessageBox.Show("Projet ajoute!");
+                    txtProjetNom.Text = ""; txtProjetBudget.Text = "";
+                    BtnListerProjet_Click(sender, e);
+                }
+                else MessageBox.Show("Erreur ajout Projet");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        // ==========================================
+        //  AFFECTATIONS
+        // ==========================================
+
+        private void BtnListerAff_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                dgvAffectations.DataSource = null;
+                dgvAffectations.DataSource = serviceProxy.ListerAffectations();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void BtnAjouterAff_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Affectation a = new Affectation
+                {
+                    EmployeCin = txtAffEmpCin.Text,
+                    ProjetId = int.Parse(txtAffProjetId.Text),
+                    Heures = int.Parse(txtAffHeures.Text)
+                };
+                if (serviceProxy.AjouterAffectation(a))
+                {
+                    MessageBox.Show("Affectation ajoutee!");
+                    txtAffEmpCin.Text = ""; txtAffProjetId.Text = ""; txtAffHeures.Text = "";
+                    BtnListerAff_Click(sender, e);
+                }
+                else MessageBox.Show("Erreur ajout Affectation");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
     }
 }
