@@ -222,6 +222,32 @@ namespace Server
             }
         }
 
+        public bool ModifierDepartement(Departement departement)
+        {
+            try
+            {
+                return _dataStore.ModifierDepartement(departement);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la modification departement : {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool SupprimerDepartement(int id)
+        {
+            try
+            {
+                return _dataStore.SupprimerDepartement(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la suppression departement : {ex.Message}");
+                return false;
+            }
+        }
+
         public List<Departement> ListerDepartements()
         {
             try
@@ -249,6 +275,32 @@ namespace Server
             }
         }
 
+        public bool ModifierProjet(Projet projet)
+        {
+            try
+            {
+                return _dataStore.ModifierProjet(projet);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la modification projet : {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool SupprimerProjet(int id)
+        {
+            try
+            {
+                return _dataStore.SupprimerProjet(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la suppression projet : {ex.Message}");
+                return false;
+            }
+        }
+
         public List<Projet> ListerProjets()
         {
             try
@@ -272,6 +324,32 @@ namespace Server
             catch (Exception ex)
             {
                 Console.WriteLine($"[SERVER] Erreur lors de l'ajout affectation : {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool ModifierAffectation(Affectation affectation)
+        {
+            try
+            {
+                return _dataStore.ModifierAffectation(affectation);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la modification affectation : {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool SupprimerAffectation(int id)
+        {
+            try
+            {
+                return _dataStore.SupprimerAffectation(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SERVER] Erreur lors de la suppression affectation : {ex.Message}");
                 return false;
             }
         }

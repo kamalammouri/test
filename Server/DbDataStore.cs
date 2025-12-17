@@ -236,6 +236,32 @@ END";
             }
         }
 
+        public bool ModifierDepartement(Departement dept)
+        {
+            const string sql = @"UPDATE Departements SET Nom = @Nom, ChefCin = @ChefCin WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", dept.Id);
+                cmd.Parameters.AddWithValue("@Nom", dept.Nom ?? "");
+                cmd.Parameters.AddWithValue("@ChefCin", (object)dept.ChefCin ?? DBNull.Value);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool SupprimerDepartement(int id)
+        {
+            const string sql = @"DELETE FROM Departements WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
         public List<Departement> ListerDepartements()
         {
             const string sql = @"SELECT Id, Nom, ChefCin FROM Departements";
@@ -268,6 +294,32 @@ END";
             {
                 cmd.Parameters.AddWithValue("@Nom", proj.Nom ?? "");
                 cmd.Parameters.AddWithValue("@Budget", proj.Budget);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool ModifierProjet(Projet proj)
+        {
+            const string sql = @"UPDATE Projets SET Nom = @Nom, Budget = @Budget WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", proj.Id);
+                cmd.Parameters.AddWithValue("@Nom", proj.Nom ?? "");
+                cmd.Parameters.AddWithValue("@Budget", proj.Budget);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool SupprimerProjet(int id)
+        {
+            const string sql = @"DELETE FROM Projets WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
@@ -306,6 +358,33 @@ END";
                 cmd.Parameters.AddWithValue("@EmployeCin", aff.EmployeCin ?? "");
                 cmd.Parameters.AddWithValue("@ProjetId", aff.ProjetId);
                 cmd.Parameters.AddWithValue("@Heures", aff.Heures);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool ModifierAffectation(Affectation aff)
+        {
+            const string sql = @"UPDATE Affectations SET EmployeCin = @EmployeCin, ProjetId = @ProjetId, Heures = @Heures WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", aff.Id);
+                cmd.Parameters.AddWithValue("@EmployeCin", aff.EmployeCin ?? "");
+                cmd.Parameters.AddWithValue("@ProjetId", aff.ProjetId);
+                cmd.Parameters.AddWithValue("@Heures", aff.Heures);
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool SupprimerAffectation(int id)
+        {
+            const string sql = @"DELETE FROM Affectations WHERE Id = @Id";
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
